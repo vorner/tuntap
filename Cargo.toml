@@ -11,10 +11,17 @@ categories = ["network-programming"]
 license = "Apache-2.0/MIT"
 
 [badges]
-travis-ci = { repository = "vorner/corona" }
-appveyor = { repository = "vorner/corona" }
+travis-ci = { repository = "vorner/tuntap" }
+
+[features]
+default = ["tokio"]
+tokio = ["futures", "libc", "mio", "tokio-core"]
 
 [build-dependencies]
 gcc = "~0.3"
 
 [dependencies]
+futures = { version = "~0.1", optional = true }
+libc = { version = "~0.2", optional = true }
+mio = { version = "~0.6", optional = true }
+tokio-core = { version = "~0.1", optional = true }

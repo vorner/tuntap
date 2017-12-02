@@ -4,6 +4,9 @@ use std::io::{Error, Read, Result, Write};
 use std::os::raw::{c_char, c_int};
 use std::os::unix::io::{AsRawFd, IntoRawFd, RawFd};
 
+#[cfg(feature = "tokio")]
+pub mod async;
+
 extern "C" {
     fn tuntap_setup(fd: c_int, name: *mut u8, mode: c_int) -> c_int;
 }
