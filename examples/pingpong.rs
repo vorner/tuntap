@@ -9,7 +9,6 @@
 //! You really do want better error handling than all these unwraps.
 extern crate tuntap;
 
-use std::io::{Read, Write};
 use std::process::Command;
 use std::sync::Arc;
 use std::thread;
@@ -18,7 +17,7 @@ use std::time::Duration;
 use tuntap::{Iface, Mode};
 
 /// The packet data. Note that it is prefixed by 4 bytes ‒ two bytes are flags, another two are
-/// protocol. 8, 0 is IPv4, 134, 221 is IPv6. https://en.wikipedia.org/wiki/EtherType#Examples.
+/// protocol. 8, 0 is IPv4, 134, 221 is IPv6. <https://en.wikipedia.org/wiki/EtherType#Examples>.
 const PING: &[u8] = &[0, 0, 8, 0, 69, 0, 0, 84, 44, 166, 64, 0, 64, 1, 247, 40, 10, 107, 1, 2, 10,
     107, 1, 3, 8, 0, 62, 248, 19, 160, 0, 2, 232, 228, 34, 90, 0, 0, 0, 0, 216, 83, 3, 0, 0, 0, 0,
     0, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
@@ -48,20 +47,18 @@ fn main() {
     let iface_reader = Arc::clone(&iface);
     let writer = thread::spawn(move || {
         // Yeh, mutable reference to immutable thing. Nuts…
-        let mut iface: &Iface = &iface_writer;
         loop {
             thread::sleep(Duration::from_secs(1));
             println!("Sending a ping");
-            let amount = iface.write(PING).unwrap();
+            let amount = iface_writer.send(PING).unwrap();
             assert!(amount == PING.len());
         }
     });
     let reader = thread::spawn(move || {
-        let mut iface: &Iface = &iface_reader;
         // MTU + TUN header
         let mut buffer = vec![0; 1504];
         loop {
-            let size = iface.read(&mut buffer).unwrap();
+            let size = iface_reader.recv(&mut buffer).unwrap();
             // Strip the „header“
             assert!(size >= 4);
             println!("Packet: {:?}", &buffer[4..size]);

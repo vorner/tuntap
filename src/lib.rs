@@ -53,35 +53,11 @@ impl Iface {
     pub fn name(&self) -> &str {
         &self.name
     }
-}
-
-impl Read for Iface {
-    fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
-        self.fd.read(buf)
-    }
-}
-
-impl<'a> Read for &'a Iface {
-    fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
+    pub fn recv(&self, buf: &mut [u8]) -> Result<usize> {
         (&self.fd).read(buf)
     }
-}
-
-impl Write for Iface {
-    fn write(&mut self, buf: &[u8]) -> Result<usize> {
-        self.fd.write(buf)
-    }
-    fn flush(&mut self) -> Result<()> {
-        self.fd.flush()
-    }
-}
-
-impl<'a> Write for &'a Iface {
-    fn write(&mut self, buf: &[u8]) -> Result<usize> {
+    pub fn send(&self, buf: &[u8]) -> Result<usize> {
         (&self.fd).write(buf)
-    }
-    fn flush(&mut self) -> Result<()> {
-        (&self.fd).flush()
     }
 }
 

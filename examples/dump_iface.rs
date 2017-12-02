@@ -6,7 +6,6 @@
 //! You really do want better error handling than all these unwraps.
 extern crate tuntap;
 
-use std::io::Read;
 use std::process::Command;
 
 use tuntap::{Iface, Mode};
@@ -24,7 +23,7 @@ fn cmd(cmd: &str, args: &[&str]) {
 
 fn main() {
     // Create the tun interface.
-    let mut iface = Iface::new("testtun%d", Mode::Tun).unwrap();
+    let iface = Iface::new("testtun%d", Mode::Tun).unwrap();
     eprintln!("Iface: {:?}", iface);
     // Configure the „local“ (kernel) endpoint.
     cmd("ip", &["addr", "add", "dev", iface.name(), "10.107.1.2/24"]);
@@ -37,7 +36,7 @@ fn main() {
     let mut buffer = vec![0; 1504];
     loop {
         // Every read is one packet. If the buffer is too small, bad luck, it gets truncated.
-        let size = iface.read(&mut buffer).unwrap();
+        let size = iface.recv(&mut buffer).unwrap();
         assert!(size >= 4);
         println!("Packet: {:?}", &buffer[4..size]);
     }
