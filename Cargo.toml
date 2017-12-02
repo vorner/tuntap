@@ -1,0 +1,20 @@
+[package]
+name = "tuntap"
+version = "0.1.0"
+authors = ["Michal 'vorner' Vaner <vorner@vorner.cz>"]
+description = "TUN/TAP interface wrapper"
+documentation = "https://docs.rs/tuntap"
+repository = "https://github.com/vorner/tuntap"
+readme = "README.md"
+keywords = ["tun", "tap", "network"]
+categories = ["network-programming"]
+license = "Apache-2.0/MIT"
+
+[badges]
+travis-ci = { repository = "vorner/corona" }
+appveyor = { repository = "vorner/corona" }
+
+[build-dependencies]
+gcc = "~0.3"
+
+[dependencies]
