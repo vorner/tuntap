@@ -6,7 +6,7 @@ rust:
     - nightly
 os:
     - linux
-    - osx
+    #- osx
 
 before_script:
     - |
