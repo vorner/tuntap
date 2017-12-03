@@ -1,3 +1,13 @@
+//! An example that reads and writes the TUN in parallel.
+//!
+//! This creates an interface, configures the kernel endpoint and sends pings to that endpoint. It
+//! prints whatever packets come back (which should include the pong responses).
+//!
+//! This does essentialy the same as the `pingpoing` example. However, instead of threads, this
+//! uses tokio asynchronous event loop to multiplex between the two directions.
+//!
+//! You really do want better error handling than all these unwraps.
+
 extern crate futures;
 extern crate tokio_core;
 extern crate tuntap;
