@@ -1,5 +1,5 @@
-• Docs
 • Publishing
 • More interface for Async ‒ ability to send/recv one thing, framed (so we don't have to create bunch of vecs all the time)
 • Fix of compilation and features ‒ examples don't build without all the features
 • Share some bits of the examples, maybe better error handling in them
+• Logging?

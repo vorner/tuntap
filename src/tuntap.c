@@ -31,7 +31,10 @@ int tuntap_setup(int fd, unsigned char *name, int mode) {
 		default:
 			assert(0);
 	}
-	strncpy(ifr.ifr_name, (char *)name, IFNAMSIZ);
+	// Leave one for terminating '\0'. No idea if it is needed, didn't find
+	// it in the docs, but assuming the worst.
+	strncpy(ifr.ifr_name, (char *)name, IFNAMSIZ - 1);
+
 	int ioresult = ioctl(fd, TUNSETIFF, &ifr);
 	if (ioresult < 0) {
 		return ioresult;

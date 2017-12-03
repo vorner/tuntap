@@ -1,3 +1,6 @@
+//! Integration of TUN/TAP into tokio.
+//!
+//! See the [`Async`](struct.Async.html) structure.
 extern crate futures;
 extern crate libc;
 extern crate mio;
@@ -45,12 +48,25 @@ impl Write for MioWrapper {
     }
 }
 
+/// A wrapper around [`Iface`](../struct.Iface.html) for use in connection with tokio.
+///
+/// This turns the synchronous `Iface` into an asynchronous `Sink + Stream` of packets.
 pub struct Async {
     mio: PollEvented<MioWrapper>,
     recv_bufsize: usize,
 }
 
 impl Async {
+    /// Consumes an `Iface` and wraps it in a new `Async`.
+    ///
+    /// # Parameters
+    ///
+    /// * `iface`: The created interface to wrap. It gets consumed.
+    /// * `handle`: The handle to tokio's `Core` to run on.
+    ///
+    /// # Errors
+    ///
+    /// This fails with an error in case of low-level OS errors (they shouldn't usually happen).
     pub fn new(iface: Iface, handle: &Handle) -> Result<Self> {
         let fd = iface.as_raw_fd();
         let mut nonblock: c_int = 1;
@@ -60,11 +76,17 @@ impl Async {
         } else {
             Ok(Async {
                 mio: PollEvented::new(MioWrapper { iface }, handle)?,
-                recv_bufsize: 1504,
+                recv_bufsize: 1542,
             })
         }
     }
-    // TODO About the +4
+    /// Sets the receive buffer size.
+    ///
+    /// When receiving a packet, a buffer of this size is allocated and the packet read into it.
+    /// This configures the size of the buffer.
+    ///
+    /// This needs to be called when the interface's MTU is changed from the default 1500. The
+    /// default should be enough otherwise.
     pub fn set_recv_bufsize(&mut self, bufsize: usize) {
         self.recv_bufsize = bufsize;
     }
@@ -92,7 +114,7 @@ impl Sink for Async {
     type SinkError = Error;
     fn start_send(&mut self, item: Self::SinkItem) -> StartSend<Self::SinkItem, Self::SinkError> {
         match self.mio.write(&item) {
-            // TODO What to do about short write?
+            // TODO What to do about short write? Can it happen?
             Ok(_size) => Ok(AsyncSink::Ready),
             Err(ref e) if e.kind() == ErrorKind::WouldBlock => Ok(AsyncSink::NotReady(item)),
             Err(e) => Err(e),
