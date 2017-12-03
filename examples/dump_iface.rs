@@ -4,11 +4,11 @@
 //! raw data of the packets that arrive.
 //!
 //! You really do want better error handling than all these unwraps.
-extern crate tuntap;
+extern crate tun_tap;
 
 use std::process::Command;
 
-use tuntap::{Iface, Mode};
+use tun_tap::{Iface, Mode};
 
 /// Run a shell command. Panic if it fails in any way.
 fn cmd(cmd: &str, args: &[&str]) {

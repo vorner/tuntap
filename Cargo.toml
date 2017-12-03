@@ -1,5 +1,5 @@
 [package]
-name = "tuntap"
+name = "tun-tap"
 # Also don't forget to update the version in the html_root_url attribute in src/lib.rs
 version = "0.1.0"
 authors = ["Michal 'vorner' Vaner <vorner@vorner.cz>"]

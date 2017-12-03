@@ -14,7 +14,7 @@
 
 extern crate futures;
 extern crate tokio_core;
-extern crate tuntap;
+extern crate tun_tap;
 
 use std::env;
 use std::io::Result;
@@ -24,8 +24,8 @@ use futures::{Future, Stream};
 use tokio_core::net::{UdpCodec, UdpSocket};
 use tokio_core::reactor::Core;
 
-use tuntap::{Iface, Mode};
-use tuntap::async::Async;
+use tun_tap::{Iface, Mode};
+use tun_tap::async::Async;
 
 struct VecCodec(SocketAddr);
 

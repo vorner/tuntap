@@ -67,6 +67,26 @@ impl Async {
     /// # Errors
     ///
     /// This fails with an error in case of low-level OS errors (they shouldn't usually happen).
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// # extern crate futures;
+    /// # extern crate tokio_core;
+    /// # extern crate tun_tap;
+    /// # use futures::Stream;
+    /// # use tun_tap::*;
+    /// # use tun_tap::async::*;
+    /// # use tokio_core::reactor::Core;
+    /// # fn main() {
+    /// let iface = Iface::new("mytun%d", Mode::Tun).unwrap();
+    /// let name = iface.name().to_owned();
+    /// // Bring the interface up by `ip addr add IP dev $name; ip link set up dev $name`
+    /// let mut core = Core::new().unwrap();
+    /// let async = Async::new(iface, &core.handle()).unwrap();
+    /// let (sink, stream) = async.split();
+    /// # }
+    /// ```
     pub fn new(iface: Iface, handle: &Handle) -> Result<Self> {
         let fd = iface.as_raw_fd();
         let mut nonblock: c_int = 1;

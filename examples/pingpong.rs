@@ -8,14 +8,14 @@
 //!
 //! You really do want better error handling than all these unwraps.
 
-extern crate tuntap;
+extern crate tun_tap;
 
 use std::process::Command;
 use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
 
-use tuntap::{Iface, Mode};
+use tun_tap::{Iface, Mode};
 
 /// The packet data. Note that it is prefixed by 4 bytes ‒ two bytes are flags, another two are
 /// protocol. 8, 0 is IPv4, 134, 221 is IPv6. <https://en.wikipedia.org/wiki/EtherType#Examples>.

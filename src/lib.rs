@@ -1,4 +1,4 @@
-#![doc(html_root_url = "https://docs.rs/tuntap/0.1.0/tuntap/")]
+#![doc(html_root_url = "https://docs.rs/tun-tap/0.1.0/tun-tap/")]
 #![warn(missing_docs)]
 
 //! A TUN/TAP bindings for Rust.
@@ -6,7 +6,7 @@
 //! This is a basic interface to create userspace virtual network adapter.
 //!
 //! For basic usage, create an [`Iface`](struct.Iface.html) object and call the
-//! [`send`](struct.Iface.html#method.send) and [`recv`](struct.Iface.hmtl#method.recv) methods.
+//! [`send`](struct.Iface.html#method.send) and [`recv`](struct.Iface.html#method.recv) methods.
 //!
 //! You can also use [`Async`](async/struct.Async.html) if you want to integrate with tokio event
 //! loop. This is configurable by a feature (it is on by default).
@@ -85,7 +85,7 @@ impl Iface {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// # use tuntap::*;
+    /// # use tun_tap::*;
     /// let iface = Iface::new("mytun", Mode::Tun).expect("Failed to create a TUN device");
     /// let name = iface.name();
     /// // Configure the device ‒ set IP address on it, bring it up.

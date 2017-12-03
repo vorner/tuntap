@@ -10,15 +10,15 @@
 
 extern crate futures;
 extern crate tokio_core;
-extern crate tuntap;
+extern crate tun_tap;
 
 use std::process::Command;
 use std::time::Duration;
 
 use futures::{Future, Stream};
 use tokio_core::reactor::{Core, Interval};
-use tuntap::{Iface, Mode};
-use tuntap::async::Async;
+use tun_tap::{Iface, Mode};
+use tun_tap::async::Async;
 
 /// The packet data. Note that it is prefixed by 4 bytes ‒ two bytes are flags, another two are
 /// protocol. 8, 0 is IPv4, 134, 221 is IPv6. <https://en.wikipedia.org/wiki/EtherType#Examples>.
