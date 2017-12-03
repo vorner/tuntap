@@ -1,6 +1,6 @@
-extern crate gcc;
+extern crate cc;
 
-use gcc::Build;
+use cc::Build;
 
 fn main() {
     Build::new()

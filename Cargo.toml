@@ -19,7 +19,7 @@ default = ["tokio"]
 tokio = ["futures", "libc", "mio", "tokio-core"]
 
 [build-dependencies]
-gcc = "~0.3"
+cc = "~1"
 
 [dependencies]
 futures = { version = "~0.1", optional = true }
