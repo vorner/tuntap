@@ -3,3 +3,4 @@
 • Fix of compilation and features ‒ examples don't build without all the features
 • Share some bits of the examples, maybe better error handling in them
 • Logging?
+• Some error chaining (no such file or directory isn't very telling when /dev/net/tun is missing)
