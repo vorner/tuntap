@@ -10,7 +10,7 @@ provides the bindings for Rust.
 Create an `Iface` object and `send` or `recv` packets. Making some sense of the
 packets is, however, out of scope, you need something else for that.
 
-There's [documentation](https://docs.rs/tuntap) and some
+There's [documentation](https://docs.rs/tun-tap) and some
 [examples](https://github.com/vorner/tuntap/tree/master/examples).
 
 ## Known issues
