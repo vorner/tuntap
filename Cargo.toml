@@ -1,10 +1,10 @@
 [package]
 name = "tun-tap"
 # Also don't forget to update the version in the html_root_url attribute in src/lib.rs
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Michal 'vorner' Vaner <vorner@vorner.cz>"]
 description = "TUN/TAP interface wrapper"
-documentation = "https://docs.rs/tuntap"
+documentation = "https://docs.rs/tun-tap"
 repository = "https://github.com/vorner/tuntap"
 readme = "README.md"
 keywords = ["tun", "tap", "network"]
@@ -13,6 +13,7 @@ license = "Apache-2.0/MIT"
 
 [badges]
 travis-ci = { repository = "vorner/tuntap" }
+maintenance = { status = "passively-maintained" }
 
 [features]
 default = ["tokio"]

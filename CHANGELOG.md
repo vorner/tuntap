@@ -1,3 +1,8 @@
+# 0.1.1
+
+* Fixes in documentation links.
+* No real code changes.
+
 # 0.1.0
 
 Initial implementation:

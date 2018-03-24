@@ -1,4 +1,4 @@
-#![doc(html_root_url = "https://docs.rs/tun-tap/0.1.0/tun-tap/")]
+#![doc(html_root_url = "https://docs.rs/tun-tap/0.1.1/tun-tap/")]
 #![warn(missing_docs)]
 
 //! A TUN/TAP bindings for Rust.
