@@ -34,7 +34,7 @@ use std::os::unix::io::{AsRawFd, IntoRawFd, RawFd};
 pub mod async;
 
 extern "C" {
-    fn tuntap_setup(fd: c_int, name: *mut u8, mode: c_int) -> c_int;
+    fn tuntap_setup(fd: c_int, name: *mut u8, mode: c_int, packet_info: c_int) -> c_int;
 }
 
 /// The mode in which open the virtual network adapter.
@@ -93,6 +93,41 @@ impl Iface {
     /// iface.recv(&mut buffer).unwrap();
     /// ```
     pub fn new(ifname: &str, mode: Mode) -> Result<Self> {
+        Iface::with_options(ifname, mode, true)
+    }
+    /// Creates a new virtual interface without the prepended packet info.
+    ///
+    /// # Parameters
+    ///
+    /// * `ifname`: The requested name of the virtual device. If left empty, the kernel will
+    ///   provide some reasonable, currently unused name. It also can contain `%d`, which will be
+    ///   replaced by a number to ensure the name is unused. Even if it isn't empty or doesn't
+    ///   contain `%d`, the actual name may be different (for example truncated to OS-dependent
+    ///   length). Use [`name`](#method.name) to find out the real name.
+    /// * `mode`: In which mode to create the device.
+    ///
+    /// # Errors
+    ///
+    /// This may fail for various OS-dependent reasons. However, two most common are:
+    ///
+    /// * The name is already taken.
+    /// * The process doesn't have the needed privileges (eg. `CAP_NETADM`).
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// # use tun_tap::*;
+    /// let iface = Iface::without_packet_info("mytap", Mode::Tap).expect("Failed to create a TAP device");
+    /// let name = iface.name();
+    /// // Configure the device ‒ set IP address on it, bring it up.
+    /// let mut buffer = vec![0; 1500]; // MTU
+    /// iface.recv(&mut buffer).unwrap();
+    /// ```
+    pub fn without_packet_info(ifname: &str, mode: Mode) -> Result<Self> {
+        Iface::with_options(ifname, mode, false)
+    }
+
+    fn with_options(ifname: &str, mode: Mode, packet_info: bool) -> Result<Self> {
         let fd = OpenOptions::new()
             .read(true)
             .write(true)
@@ -102,7 +137,7 @@ impl Iface {
         name_buffer.extend_from_slice(ifname.as_bytes());
         name_buffer.extend_from_slice(&[0; 33]);
         let name_ptr: *mut u8 = name_buffer.as_mut_ptr();
-        let result = unsafe { tuntap_setup(fd.as_raw_fd(), name_ptr, mode as c_int) };
+        let result = unsafe { tuntap_setup(fd.as_raw_fd(), name_ptr, mode as c_int, { if packet_info { 1 } else { 0 } }) };
         if result < 0 {
             return Err(Error::last_os_error());
         }
@@ -117,6 +152,7 @@ impl Iface {
             name,
         })
     }
+
     /// Returns the mode of the adapter.
     ///
     /// It is always the same as the one passed to [`new`](#method.new).
@@ -138,7 +174,7 @@ impl Iface {
     /// packet is copied into the provided buffer.
     ///
     /// Make sure the buffer is large enough. It is MTU of the interface (usually 1500, unless
-    /// reconfigured) + 4 for the header in case of TUN, MTU + size of ethernet frame (38 bytes,
+    /// reconfigured) + 4 for the header in case that packet info is prepended, MTU + size of ethernet frame (38 bytes,
     /// unless VLan tags are enabled). If the buffer isn't large enough, the packet gets truncated.
     ///
     /// # Result

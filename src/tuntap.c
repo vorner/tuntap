@@ -17,8 +17,9 @@
  * name ‒ the name to use. If empty, kernel will assign something by itself.
  *   Must be buffer with capacity at least 33.
  * mode ‒ 1 = TUN, 2 = TAP.
+ * packet_info ‒ if packet info should be provided, if the given value is 0 it will not prepend packet info.
  */
-int tuntap_setup(int fd, unsigned char *name, int mode) {
+int tuntap_setup(int fd, unsigned char *name, int mode, int packet_info) {
 	struct ifreq ifr;
 	memset(&ifr, 0, sizeof ifr);
 	switch (mode) {
@@ -31,6 +32,12 @@ int tuntap_setup(int fd, unsigned char *name, int mode) {
 		default:
 			assert(0);
 	}
+
+	// If no packet info needs to be provided add corresponding flag
+	if (!packet_info) {
+		ifr.ifr_flags |= IFF_NO_PI;
+	}
+
 	// Leave one for terminating '\0'. No idea if it is needed, didn't find
 	// it in the docs, but assuming the worst.
 	strncpy(ifr.ifr_name, (char *)name, IFNAMSIZ - 1);
