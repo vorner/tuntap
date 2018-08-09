@@ -1,5 +1,8 @@
-#![doc(html_root_url = "https://docs.rs/tun-tap/0.1.1/tun-tap/")]
-#![warn(missing_docs)]
+#![doc(
+    html_root_url = "https://docs.rs/tun-tap/0.1.2/tun-tap/",
+    test(attr(deny(warnings), allow(unused_variables)))
+)]
+#![deny(missing_docs)]
 
 //! A TUN/TAP bindings for Rust.
 //!

@@ -1,7 +1,7 @@
 [package]
 name = "tun-tap"
 # Also don't forget to update the version in the html_root_url attribute in src/lib.rs
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Michal 'vorner' Vaner <vorner@vorner.cz>"]
 description = "TUN/TAP interface wrapper"
 documentation = "https://docs.rs/tun-tap"
@@ -27,3 +27,6 @@ futures = { version = "~0.1", optional = true }
 libc = { version = "~0.2", optional = true }
 mio = { version = "~0.6", optional = true }
 tokio-core = { version = "~0.1", optional = true }
+
+[dev-dependencies]
+version-sync = "~0.5"

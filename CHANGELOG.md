@@ -1,3 +1,7 @@
+# 0.1.2
+
+* The `without_packet_info` constructor.
+
 # 0.1.1
 
 * Fixes in documentation links.

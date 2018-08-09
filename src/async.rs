@@ -82,7 +82,7 @@ impl Async {
     /// let iface = Iface::new("mytun%d", Mode::Tun).unwrap();
     /// let name = iface.name().to_owned();
     /// // Bring the interface up by `ip addr add IP dev $name; ip link set up dev $name`
-    /// let mut core = Core::new().unwrap();
+    /// let core = Core::new().unwrap();
     /// let async = Async::new(iface, &core.handle()).unwrap();
     /// let (sink, stream) = async.split();
     /// # }
