@@ -243,9 +243,10 @@ mod tests {
         let num = iface.recv(&mut buf).expect("failed to receive data");
         assert_eq!(num, 38);
         let packet = &buf[..num];
-        if let PacketHeaders { ip: Some(IpHeader::Version4(_ip_header)), transport: Some(TransportHeader::Udp(_udp_header)), .. } = PacketHeaders::from_ip_slice(&packet).expect("failed to parse packet") {
+        if let PacketHeaders { ip: Some(IpHeader::Version4(_ip_header)), transport: Some(TransportHeader::Udp(_udp_header)), payload, .. } = PacketHeaders::from_ip_slice(&packet).expect("failed to parse packet") {
             assert_eq!(_ip_header.source, [10, 10, 10, 1]);
             assert_eq!(_ip_header.destination, [10, 10, 10, 2]);
+            assert_eq!(payload, data);
             assert_eq!(_udp_header.source_port, 2424);
             assert_eq!(_udp_header.destination_port, 4242);
         } else {
@@ -266,7 +267,7 @@ mod tests {
             packet
         };
         let mut buf = [0; 50];
-        iface.send(&packet);
+        iface.send(&packet).expect("failed to send packet");
         let (num, src_addr) = socket.recv_from(&mut buf).expect("failed to receive packet");
         assert_eq!(num, 10);
         assert_eq!(src_addr.ip(), IpAddr::V4(Ipv4Addr::new(10, 10, 10, 2)));
