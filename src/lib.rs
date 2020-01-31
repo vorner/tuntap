@@ -266,12 +266,12 @@ mod tests {
             builder.write(&mut packet, &data).expect("failed to build packet");
             packet
         };
-        let mut buf = [0; 50];
         iface.send(&packet).expect("failed to send packet");
-        let (num, src_addr) = socket.recv_from(&mut buf).expect("failed to receive packet");
+        let mut buf = [0; 50];
+        let (num, source) = socket.recv_from(&mut buf).expect("failed to receive packet");
         assert_eq!(num, 10);
-        assert_eq!(src_addr.ip(), IpAddr::V4(Ipv4Addr::new(10, 10, 10, 2)));
-        assert_eq!(src_addr.port(), 4242);
+        assert_eq!(source.ip(), IpAddr::V4(Ipv4Addr::new(10, 10, 10, 2)));
+        assert_eq!(source.port(), 4242);
         assert_eq!(data, &buf[..num]);
     }
 }
