@@ -221,10 +221,3 @@ impl IntoRawFd for Iface {
         self.fd.into_raw_fd()
     }
 }
-
-impl Drop for Iface {
-    fn drop(&mut self) {
-        drop(&self.fd);
-    }
-}
-
