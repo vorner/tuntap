@@ -222,3 +222,9 @@ impl IntoRawFd for Iface {
     }
 }
 
+impl Drop for Iface {
+    fn drop(&mut self) {
+        drop(&self.fd);
+    }
+}
+
