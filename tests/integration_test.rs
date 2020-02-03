@@ -1,7 +1,7 @@
 extern crate etherparse;
 extern crate tun_tap;
 
-use self::etherparse::{IpHeader, PacketBuilder, PacketHeaders, TransportHeader};
+use etherparse::{IpHeader, PacketBuilder, PacketHeaders, TransportHeader};
 use std::net::{IpAddr, Ipv4Addr, UdpSocket};
 use tun_tap::{Iface, Mode};
 
