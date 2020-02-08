@@ -31,3 +31,4 @@ tokio-core = { version = "~0.1", optional = true }
 [dev-dependencies]
 version-sync = "~0.5"
 etherparse = "0.9.0"
+serial_test = "0.3.2"

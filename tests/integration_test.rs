@@ -1,11 +1,14 @@
 extern crate etherparse;
+extern crate serial_test;
 extern crate tun_tap;
 
 use etherparse::{IpHeader, PacketBuilder, PacketHeaders, TransportHeader};
+use serial_test::serial;
 use std::net::{IpAddr, Ipv4Addr, UdpSocket};
 use tun_tap::{Iface, Mode};
 
 #[test]
+#[serial]
 fn it_sents_packets() {
     let iface =
         Iface::without_packet_info("tun0", Mode::Tun).expect("failed to create a TUN device");
@@ -36,6 +39,7 @@ fn it_sents_packets() {
 }
 
 #[test]
+#[serial]
 fn it_receives_packets() {
     let iface =
         Iface::without_packet_info("tun0", Mode::Tun).expect("failed to create a TUN device");
