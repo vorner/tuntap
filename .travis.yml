@@ -9,9 +9,7 @@ os:
     #- osx
 
 before_script:
-    - sudo ip tuntap add dev tun0 mode tun user travis
-    - sudo ip address add 10.10.10.1/24 dev tun0
-    - sudo ip link set tun0 up
+    - sh tests/setup.sh
     - |
       (test "$TRAVIS_RUST_VERSION" != nightly || travis_wait rustup component add clippy-preview || true)
 
