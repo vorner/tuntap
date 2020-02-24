@@ -20,6 +20,23 @@ There's [documentation](https://docs.rs/tun-tap) and some
 * The asynchronous interface is very minimal and probably inefficient. It'll
   need to be extended to allow more flexible or efficient use.
 
+## Testing
+
+In order to run the tests correctly, a `tun10` device with `10.10.10.1/24` need
+to be created first. You can simply run:
+
+```shell
+sh tests/setup.sh
+```
+
+To remove it:
+
+```shell
+sh tests/clean.sh
+```
+
+Sudo permission is required.
+
 ## License
 
 Licensed under either of

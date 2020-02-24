@@ -11,7 +11,7 @@ use tun_tap::{Iface, Mode};
 #[serial]
 fn it_sents_packets() {
     let iface =
-        Iface::without_packet_info("tun0", Mode::Tun).expect("failed to create a TUN device");
+        Iface::without_packet_info("tun10", Mode::Tun).expect("failed to create a TUN device");
     let data = [1; 10];
     let socket = UdpSocket::bind("10.10.10.1:2424").expect("failed to bind to address");
     socket
@@ -42,7 +42,7 @@ fn it_sents_packets() {
 #[serial]
 fn it_receives_packets() {
     let iface =
-        Iface::without_packet_info("tun0", Mode::Tun).expect("failed to create a TUN device");
+        Iface::without_packet_info("tun10", Mode::Tun).expect("failed to create a TUN device");
     let data = [1; 10];
     let socket = UdpSocket::bind("10.10.10.1:2424").expect("failed to bind to address");
     let builder = PacketBuilder::ipv4([10, 10, 10, 2], [10, 10, 10, 1], 20).udp(4242, 2424);
