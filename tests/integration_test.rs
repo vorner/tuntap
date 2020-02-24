@@ -22,16 +22,16 @@ fn it_sents_packets() {
     assert_eq!(num, 38);
     let packet = &buf[..num];
     if let PacketHeaders {
-        ip: Some(IpHeader::Version4(_ip_header)),
-        transport: Some(TransportHeader::Udp(_udp_header)),
+        ip: Some(IpHeader::Version4(ip_header)),
+        transport: Some(TransportHeader::Udp(udp_header)),
         payload,
         ..
     } = PacketHeaders::from_ip_slice(&packet).expect("failed to parse packet")
     {
-        assert_eq!(_ip_header.source, [10, 10, 10, 1]);
-        assert_eq!(_ip_header.destination, [10, 10, 10, 2]);
-        assert_eq!(_udp_header.source_port, 2424);
-        assert_eq!(_udp_header.destination_port, 4242);
+        assert_eq!(ip_header.source, [10, 10, 10, 1]);
+        assert_eq!(ip_header.destination, [10, 10, 10, 2]);
+        assert_eq!(udp_header.source_port, 2424);
+        assert_eq!(udp_header.destination_port, 4242);
         assert_eq!(payload, data);
     } else {
         assert!(false, "incorrect packet");
