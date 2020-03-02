@@ -22,7 +22,7 @@ There's [documentation](https://docs.rs/tun-tap) and some
 
 ## Testing
 
-In order to run the tests correctly, a `tun10` device with `10.10.10.1/24` need
+In order to run the tests correctly, a `tun10` device with `10.10.10.1/24` needs
 to be created first. You can simply run:
 
 ```shell
