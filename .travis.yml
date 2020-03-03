@@ -9,6 +9,7 @@ os:
     #- osx
 
 before_script:
+    - sh tests/setup.sh
     - |
       (test "$TRAVIS_RUST_VERSION" != nightly || travis_wait rustup component add clippy-preview || true)
 
