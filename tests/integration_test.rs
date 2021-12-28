@@ -63,3 +63,33 @@ fn it_receives_packets() {
     assert_eq!(source.port(), 4242);
     assert_eq!(data, &buf[..num]);
 }
+
+#[test]
+#[serial]
+fn it_receives_packets_on_cloned_interface() {
+    let iface =
+        Iface::without_packet_info("tun10", Mode::Tun).expect("failed to create a TUN device");
+    let data = [5; 10];
+    let socket = UdpSocket::bind("10.10.10.1:2424").expect("failed to bind to address");
+    let builder = PacketBuilder::ipv4([10, 10, 10, 3], [10, 10, 10, 1], 20).udp(4242, 2424);
+    let packet = {
+        let mut packet = Vec::<u8>::with_capacity(builder.size(data.len()));
+        builder
+            .write(&mut packet, &data)
+            .expect("failed to build packet");
+        packet
+    };
+    iface
+        .try_clone()
+        .expect("failed to clone interface")
+        .send(&packet)
+        .expect("failed to send packet");
+    let mut buf = [0; 50];
+    let (num, source) = socket
+        .recv_from(&mut buf)
+        .expect("failed to receive packet");
+    assert_eq!(num, 10);
+    assert_eq!(source.ip(), IpAddr::V4(Ipv4Addr::new(10, 10, 10, 3)));
+    assert_eq!(source.port(), 4242);
+    assert_eq!(data, &buf[..num]);
+}
