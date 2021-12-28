@@ -208,6 +208,17 @@ impl Iface {
     pub fn send(&self, buf: &[u8]) -> Result<usize> {
         (&self.fd).write(buf)
     }
+    /// Clone interface
+    ///
+    /// Get a copy of same interface
+    /// Useful for synchronous sending and receiving packets in separate threads
+    pub fn try_clone(&self) -> Result<Self> {
+        Ok(Self {
+            fd: self.fd.try_clone()?,
+            name: self.name.clone(),
+            mode: self.mode,
+        })
+    }
 }
 
 impl AsRawFd for Iface {
