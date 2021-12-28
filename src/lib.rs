@@ -140,7 +140,7 @@ impl Iface {
         name_buffer.extend_from_slice(ifname.as_bytes());
         name_buffer.extend_from_slice(&[0; 33]);
         let name_ptr: *mut u8 = name_buffer.as_mut_ptr();
-        let result = unsafe { tuntap_setup(fd.as_raw_fd(), name_ptr, mode as c_int, { if packet_info { 1 } else { 0 } }) };
+        let result = unsafe { tuntap_setup(fd.as_raw_fd(), name_ptr, mode as c_int, if packet_info { 1 } else { 0 }) };
         if result < 0 {
             return Err(Error::last_os_error());
         }
