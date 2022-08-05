@@ -1,3 +1,7 @@
+# 0.1.3
+
+* Add MacOS support (#10).
+
 # 0.1.2
 
 * The `without_packet_info` constructor.
