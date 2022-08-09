@@ -29,6 +29,6 @@ mio = { version = "~0.6", optional = true }
 tokio-core = { version = "~0.1", optional = true }
 
 [dev-dependencies]
-version-sync = "~0.5"
+version-sync = "~0.9"
 etherparse = "~0.9"
 serial_test = "~0.4"
