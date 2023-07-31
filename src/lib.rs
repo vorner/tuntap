@@ -173,8 +173,12 @@ impl Iface {
     }
     /// Receives a packet from the interface.
     ///
-    /// Blocks until a packet is sent into the virtual interface. At that point, the content of the
-    /// packet is copied into the provided buffer.
+    /// By default, blocks until a packet is sent into the virtual interface. At that point,
+    /// the content of the packet is copied into the provided buffer.
+    ///
+    /// If interface has been set to be non-blocking, this will fail with an error of kind
+    /// [`WouldBlock`](std::io::error::ErrorKind::WouldBlock) instead of blocking
+    /// if no packet is queued up.
     ///
     /// Make sure the buffer is large enough. It is MTU of the interface (usually 1500, unless
     /// reconfigured) + 4 for the header in case that packet info is prepended, MTU + size of ethernet frame (38 bytes,
@@ -190,6 +194,10 @@ impl Iface {
     ///
     /// Sends a packet through the interface. The buffer must be valid representation of a packet
     /// (with appropriate headers).
+    ///
+    /// If interface has been set to be non-blocking, this will fail with an error of kind
+    /// [`WouldBlock`](std::io::error::ErrorKind::WouldBlock) instead of blocking
+    /// if interface is not ready.
     ///
     /// It is up to the caller to provide only packets that fit MTU.
     ///
@@ -207,6 +215,23 @@ impl Iface {
     /// interface and not routed anywhere… you get the idea.
     pub fn send(&self, buf: &[u8]) -> Result<usize> {
         (&self.fd).write(buf)
+    }
+    /// Sets the interface to be blocking (default) or non-blocking
+    ///
+    /// Note the behaviour of [`send`](#method.send) and [`recv`](#method.recv) will change if set.
+    ///
+    /// # Errors
+    ///
+    /// This fails with an error in case of low-level OS errors (they shouldn't usually happen).
+    pub fn set_non_blocking(&self, non_blocking: bool) -> Result<()> {
+        let fd = self.as_raw_fd();
+        let mut nonblock: c_int = if non_blocking { 1 } else { 0 };
+        let result = unsafe { libc::ioctl(fd, libc::FIONBIO, &mut nonblock) };
+        if result == -1 {
+            Err(Error::last_os_error())
+        } else {
+            Ok(())
+        }
     }
 }
 
