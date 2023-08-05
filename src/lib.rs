@@ -177,7 +177,7 @@ impl Iface {
     /// the content of the packet is copied into the provided buffer.
     ///
     /// If interface has been set to be non-blocking, this will fail with an error of kind
-    /// [`WouldBlock`](std::io::error::ErrorKind::WouldBlock) instead of blocking
+    /// [`WouldBlock`](std::io::ErrorKind::WouldBlock) instead of blocking
     /// if no packet is queued up.
     ///
     /// Make sure the buffer is large enough. It is MTU of the interface (usually 1500, unless
@@ -196,7 +196,7 @@ impl Iface {
     /// (with appropriate headers).
     ///
     /// If interface has been set to be non-blocking, this will fail with an error of kind
-    /// [`WouldBlock`](std::io::error::ErrorKind::WouldBlock) instead of blocking
+    /// [`WouldBlock`](std::io::ErrorKind::WouldBlock) instead of blocking
     /// if interface is not ready.
     ///
     /// It is up to the caller to provide only packets that fit MTU.
