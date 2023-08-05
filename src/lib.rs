@@ -223,6 +223,10 @@ impl Iface {
     /// # Errors
     ///
     /// This fails with an error in case of low-level OS errors (they shouldn't usually happen).
+    ///
+    /// # Notes
+    /// If default features are excluded, include feature "libc" for this function to be available
+    #[cfg(feature = "libc")]
     pub fn set_non_blocking(&self, non_blocking: bool) -> Result<()> {
         let fd = self.as_raw_fd();
         let mut nonblock: c_int = if non_blocking { 1 } else { 0 };

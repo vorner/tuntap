@@ -17,14 +17,14 @@ maintenance = { status = "passively-maintained" }
 
 [features]
 default = ["tokio"]
-tokio = ["futures", "mio", "tokio-core"]
+tokio = ["futures", "libc", "mio", "tokio-core"]
 
 [build-dependencies]
 cc = "~1"
 
 [dependencies]
 futures = { version = "~0.1", optional = true }
-libc = { version = "~0.2" }
+libc = { version = "~0.2", optional = true }
 mio = { version = "~0.6", optional = true }
 tokio-core = { version = "~0.1", optional = true }
 
