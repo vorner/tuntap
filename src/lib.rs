@@ -216,7 +216,7 @@ impl Iface {
     pub fn send(&self, buf: &[u8]) -> Result<usize> {
         (&self.fd).write(buf)
     }
-    /// Sets the interface to be blocking (default) or non-blocking
+    /// Sets the interface to be non-blocking
     ///
     /// Note the behaviour of [`send`](#method.send) and [`recv`](#method.recv) will change if set.
     ///
@@ -227,9 +227,9 @@ impl Iface {
     /// # Notes
     /// If default features are excluded, include feature "libc" for this function to be available
     #[cfg(feature = "libc")]
-    pub fn set_non_blocking(&self, non_blocking: bool) -> Result<()> {
+    pub fn set_non_blocking(&self) -> Result<()> {
         let fd = self.as_raw_fd();
-        let mut nonblock: c_int = if non_blocking { 1 } else { 0 };
+        let mut nonblock: c_int = 1;
         let result = unsafe { libc::ioctl(fd, libc::FIONBIO, &mut nonblock) };
         if result == -1 {
             Err(Error::last_os_error())

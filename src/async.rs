@@ -87,7 +87,7 @@ impl Async {
     /// # }
     /// ```
     pub fn new(iface: Iface, handle: &Handle) -> Result<Self> {
-        iface.set_non_blocking(true)?;
+        iface.set_non_blocking()?;
         Ok(Async {
             mio: PollEvented::new(MioWrapper { iface }, handle)?,
             recv_bufsize: 1542,
