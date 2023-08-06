@@ -10,7 +10,6 @@ use std::io::{Error, ErrorKind, Read, Result, Write};
 use std::os::unix::io::AsRawFd;
 
 use self::futures::{Async as FAsync, AsyncSink, Sink, StartSend, Stream, Poll as FPoll};
-use self::libc::c_int;
 use self::mio::{Evented, Poll as MPoll, PollOpt, Ready, Token};
 use self::mio::unix::EventedFd;
 use self::tokio_core::reactor::{Handle, PollEvented};
@@ -88,17 +87,11 @@ impl Async {
     /// # }
     /// ```
     pub fn new(iface: Iface, handle: &Handle) -> Result<Self> {
-        let fd = iface.as_raw_fd();
-        let mut nonblock: c_int = 1;
-        let result = unsafe { libc::ioctl(fd, libc::FIONBIO, &mut nonblock) };
-        if result == -1 {
-            Err(Error::last_os_error())
-        } else {
-            Ok(Async {
-                mio: PollEvented::new(MioWrapper { iface }, handle)?,
-                recv_bufsize: 1542,
-            })
-        }
+        iface.set_non_blocking()?;
+        Ok(Async {
+            mio: PollEvented::new(MioWrapper { iface }, handle)?,
+            recv_bufsize: 1542,
+        })
     }
     /// Sets the receive buffer size.
     ///
