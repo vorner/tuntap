@@ -26,7 +26,7 @@ fn it_sents_packets() {
         transport: Some(TransportHeader::Udp(udp_header)),
         payload,
         ..
-    } = PacketHeaders::from_ip_slice(&packet).expect("failed to parse packet")
+    } = PacketHeaders::from_ip_slice(packet).expect("failed to parse packet")
     {
         assert_eq!(ip_header.source, [10, 10, 10, 1]);
         assert_eq!(ip_header.destination, [10, 10, 10, 2]);
@@ -34,7 +34,7 @@ fn it_sents_packets() {
         assert_eq!(udp_header.destination_port, 4242);
         assert_eq!(payload, data);
     } else {
-        assert!(false, "incorrect packet");
+        panic!("incorrect packet");
     }
 }
 
