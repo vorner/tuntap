@@ -1,3 +1,7 @@
+# 0.1.4
+
+* Ability to set nonblocking without tokio (#12).
+
 # 0.1.3
 
 * Add MacOS support (#10).

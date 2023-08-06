@@ -1,5 +1,5 @@
 #![doc(
-    html_root_url = "https://docs.rs/tun-tap/0.1.2/tun-tap/",
+    html_root_url = "https://docs.rs/tun-tap/0.1.4/tun-tap/",
     test(attr(deny(warnings), allow(unused_variables)))
 )]
 #![deny(missing_docs)]
