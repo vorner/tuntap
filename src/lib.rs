@@ -34,7 +34,7 @@ use std::os::raw::{c_char, c_int};
 use std::os::unix::io::{AsRawFd, IntoRawFd, RawFd};
 
 #[cfg(feature = "tokio")]
-pub mod async;
+pub mod r#async;
 
 extern "C" {
     fn tuntap_setup(fd: c_int, name: *mut u8, mode: c_int, packet_info: c_int) -> c_int;
@@ -140,7 +140,14 @@ impl Iface {
         name_buffer.extend_from_slice(ifname.as_bytes());
         name_buffer.extend_from_slice(&[0; 33]);
         let name_ptr: *mut u8 = name_buffer.as_mut_ptr();
-        let result = unsafe { tuntap_setup(fd.as_raw_fd(), name_ptr, mode as c_int, if packet_info { 1 } else { 0 }) };
+        let result = unsafe {
+            tuntap_setup(
+                fd.as_raw_fd(),
+                name_ptr,
+                mode as c_int,
+                if packet_info { 1 } else { 0 },
+            )
+        };
         if result < 0 {
             return Err(Error::last_os_error());
         }
@@ -149,11 +156,7 @@ impl Iface {
                 .to_string_lossy()
                 .into_owned()
         };
-        Ok(Iface {
-            fd,
-            mode,
-            name,
-        })
+        Ok(Iface { fd, mode, name })
     }
 
     /// Returns the mode of the adapter.
