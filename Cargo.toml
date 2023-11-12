@@ -18,18 +18,22 @@ maintenance = { status = "passively-maintained" }
 
 [features]
 default = ["tokio"]
-tokio = ["futures", "libc", "mio", "tokio-core"]
+tokio = ["futures", "libc", "tokio-util", "dep:tokio"]
 
 [build-dependencies]
 cc = "~1"
 
 [dependencies]
-futures = { version = "~0.1", optional = true }
+futures = { version = "~0.3", default-features = false, optional = true }
 libc = { version = "~0.2", optional = true }
-mio = { version = "~0.6", optional = true }
-tokio-core = { version = "~0.1", optional = true }
+tokio = { package = "tokio", version = "~1.29", features = ["io-util", "net"], optional = true }
+tokio-util = {version = "~0.7", features = ["codec"], optional = true }
 
 [dev-dependencies]
 version-sync = "~0.9"
 etherparse = "~0.13"
 serial_test = "2"
+tokio = { package = "tokio", version = "~1.29", features = ["full"] }
+futures-util = "0.3.29"
+bytes = "1.5.0"
+tokio-util = {version = "~0.7", features = ["codec", "net"]}
