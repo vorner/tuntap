@@ -25,7 +25,7 @@ use tokio_core::net::{UdpCodec, UdpSocket};
 use tokio_core::reactor::Core;
 
 use tun_tap::{Iface, Mode};
-use tun_tap::async::Async;
+use tun_tap::r#async::Async;
 
 struct VecCodec(SocketAddr);
 

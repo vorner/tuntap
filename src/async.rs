@@ -1,58 +1,21 @@
 //! Integration of TUN/TAP into tokio.
 //!
 //! See the [`Async`](struct.Async.html) structure.
-extern crate futures;
-extern crate libc;
-extern crate mio;
-extern crate tokio_core;
 
-use std::io::{Error, ErrorKind, Read, Result, Write};
-use std::os::unix::io::AsRawFd;
-
-use self::futures::{Async as FAsync, AsyncSink, Sink, StartSend, Stream, Poll as FPoll};
-use self::mio::{Evented, Poll as MPoll, PollOpt, Ready, Token};
-use self::mio::unix::EventedFd;
-use self::tokio_core::reactor::{Handle, PollEvented};
+use futures::ready;
+use std::io::{self, Result};
+use std::pin::Pin;
+use std::task::{Context, Poll};
+use tokio::io::unix::AsyncFd;
+use tokio::io::{AsyncRead, AsyncWrite};
 
 use super::Iface;
 
-struct MioWrapper {
-    iface: Iface,
-}
-
-impl Evented for MioWrapper {
-    fn register(&self, poll: &MPoll, token: Token, events: Ready, opts: PollOpt) -> Result<()> {
-        EventedFd(&self.iface.as_raw_fd()).register(poll, token, events, opts)
-    }
-    fn reregister(&self, poll: &MPoll, token: Token, events: Ready, opts: PollOpt) -> Result<()> {
-        EventedFd(&self.iface.as_raw_fd()).reregister(poll, token, events, opts)
-    }
-    fn deregister(&self, poll: &MPoll) -> Result<()> {
-        EventedFd(&self.iface.as_raw_fd()).deregister(poll)
-    }
-}
-
-impl Read for MioWrapper {
-    fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
-        self.iface.recv(buf)
-    }
-}
-
-impl Write for MioWrapper {
-    fn write(&mut self, buf: &[u8]) -> Result<usize> {
-        self.iface.send(buf)
-    }
-    fn flush(&mut self) -> Result<()> {
-        Ok(())
-    }
-}
-
 /// A wrapper around [`Iface`](../struct.Iface.html) for use in connection with tokio.
 ///
-/// This turns the synchronous `Iface` into an asynchronous `Sink + Stream` of packets.
+/// It implements AsyncWrite and AsyncRead
 pub struct Async {
-    mio: PollEvented<MioWrapper>,
-    recv_bufsize: usize,
+    inner: AsyncFd<Iface>,
 }
 
 impl Async {
@@ -61,7 +24,6 @@ impl Async {
     /// # Parameters
     ///
     /// * `iface`: The created interface to wrap. It gets consumed.
-    /// * `handle`: The handle to tokio's `Core` to run on.
     ///
     /// # Errors
     ///
@@ -70,70 +32,120 @@ impl Async {
     /// # Examples
     ///
     /// ```rust,no_run
-    /// # extern crate futures;
-    /// # extern crate tokio_core;
-    /// # extern crate tun_tap;
-    /// # use futures::Stream;
-    /// # use tun_tap::*;
-    /// # use tun_tap::async::*;
-    /// # use tokio_core::reactor::Core;
+    /// use tun_tap::r#async::Async;
+    /// use tun_tap::{Iface, Mode};
+    ///
+    /// use tokio_util::codec::{Decoder, Encoder};
+    /// use futures_util::stream::StreamExt;
+    /// use bytes::BytesMut;
+    ///
+    /// struct Frame {
+    ///   data: Vec<u8>
+    /// }
+    ///
+    /// struct Codec;
+    /// impl Decoder for Codec {
+    ///     type Item = Frame;
+    ///     type Error = std::io::Error;
+    ///     // decoding data from buffer into frames
+    ///     fn decode(&mut self, _: &mut BytesMut) -> Result<Option<Frame>, std::io::Error>
+    ///         { todo!() }
+    /// }
+    ///
+    /// impl Encoder<Frame> for Codec {
+    ///     type Error = std::io::Error;
+    ///     // encoding frame into buffer
+    ///     fn encode(&mut self, _: Frame, _: &mut BytesMut) -> Result<(), std::io::Error>
+    ///        { todo!() }
+    /// }
+    /// #
     /// # fn main() {
     /// let iface = Iface::new("mytun%d", Mode::Tun).unwrap();
-    /// let name = iface.name().to_owned();
-    /// // Bring the interface up by `ip addr add IP dev $name; ip link set up dev $name`
-    /// let core = Core::new().unwrap();
-    /// let async = Async::new(iface, &core.handle()).unwrap();
-    /// let (sink, stream) = async.split();
+    /// let iface = Async::new(iface).unwrap();
+    /// let (sink, stream) = Codec.framed(iface).split();
     /// # }
     /// ```
-    pub fn new(iface: Iface, handle: &Handle) -> Result<Self> {
+    pub fn new(iface: Iface) -> Result<Self> {
         iface.set_non_blocking()?;
         Ok(Async {
-            mio: PollEvented::new(MioWrapper { iface }, handle)?,
-            recv_bufsize: 1542,
+            inner: AsyncFd::new(iface)?,
         })
     }
-    /// Sets the receive buffer size.
-    ///
-    /// When receiving a packet, a buffer of this size is allocated and the packet read into it.
-    /// This configures the size of the buffer.
-    ///
-    /// This needs to be called when the interface's MTU is changed from the default 1500. The
-    /// default should be enough otherwise.
-    pub fn set_recv_bufsize(&mut self, bufsize: usize) {
-        self.recv_bufsize = bufsize;
-    }
-}
 
-impl Stream for Async {
-    type Item = Vec<u8>;
-    type Error = Error;
-    fn poll(&mut self) -> FPoll<Option<Self::Item>, Self::Error> {
-        // TODO Reuse buffer?
-        let mut buffer = vec![0; self.recv_bufsize];
-        match self.mio.read(&mut buffer) {
-            Ok(size) => {
-                buffer.resize(size, 0);
-                Ok(FAsync::Ready(Some(buffer)))
-            },
-            Err(ref e) if e.kind() == ErrorKind::WouldBlock => Ok(FAsync::NotReady),
-            Err(e) => Err(e),
+    /// Receives a packet from the interface.
+    pub async fn recv(&self, out: &mut [u8]) -> io::Result<usize> {
+        loop {
+            let mut guard = self.inner.readable().await?;
+
+            match guard.try_io(|inner| inner.get_ref().recv(out)) {
+                Ok(result) => return result,
+                Err(_would_block) => continue,
+            }
+        }
+    }
+    /// Sends a packet into the interface.
+    pub async fn send(&mut self, buf: &[u8]) -> Result<usize> {
+        loop {
+            let mut guard = self.inner.writable().await?;
+
+            match guard.try_io(|inner| inner.get_ref().send(buf)) {
+                Ok(result) => return result,
+                Err(_would_block) => continue,
+            }
         }
     }
 }
 
-impl Sink for Async {
-    type SinkItem = Vec<u8>;
-    type SinkError = Error;
-    fn start_send(&mut self, item: Self::SinkItem) -> StartSend<Self::SinkItem, Self::SinkError> {
-        match self.mio.write(&item) {
-            // TODO What to do about short write? Can it happen?
-            Ok(_size) => Ok(AsyncSink::Ready),
-            Err(ref e) if e.kind() == ErrorKind::WouldBlock => Ok(AsyncSink::NotReady(item)),
-            Err(e) => Err(e),
+impl AsyncRead for Async {
+    fn poll_read(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        buf: &mut tokio::io::ReadBuf<'_>,
+    ) -> Poll<io::Result<()>> {
+        loop {
+            let mut guard = ready!(self.inner.poll_read_ready(cx))?;
+
+            let unfilled = buf.initialize_unfilled();
+            match guard.try_io(|inner| inner.get_ref().recv(unfilled)) {
+                Ok(Ok(len)) => {
+                    buf.advance(len);
+                    return Poll::Ready(Ok(()));
+                }
+                Ok(Err(err)) => return Poll::Ready(Err(err)),
+                Err(_would_block) => continue,
+            }
         }
     }
-    fn poll_complete(&mut self) -> FPoll<(), Self::SinkError> {
-        Ok(FAsync::Ready(()))
+}
+
+impl AsyncWrite for Async {
+    fn poll_write(
+        self: Pin<&mut Self>,
+        cx: &mut Context<'_>,
+        buf: &[u8],
+    ) -> Poll<std::result::Result<usize, io::Error>> {
+        loop {
+            let mut guard = ready!(self.inner.poll_write_ready(cx))?;
+
+            match guard.try_io(|inner| inner.get_ref().send(buf)) {
+                Ok(result) => return Poll::Ready(result),
+                Err(_would_block) => continue,
+            }
+        }
+    }
+
+    fn poll_flush(
+        self: Pin<&mut Self>,
+        _cx: &mut Context<'_>,
+    ) -> Poll<std::result::Result<(), io::Error>> {
+        Poll::Ready(Ok(()))
+    }
+
+    fn poll_shutdown(
+        self: Pin<&mut Self>,
+        _cx: &mut Context<'_>,
+    ) -> Poll<std::result::Result<(), io::Error>> {
+        // not sure what this method should do
+        Poll::Ready(Ok(()))
     }
 }
