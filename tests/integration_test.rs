@@ -22,7 +22,7 @@ fn it_sents_packets() {
     assert_eq!(num, 38);
     let packet = &buf[..num];
     if let PacketHeaders {
-        ip: Some(IpHeader::Version4(ip_header)),
+        ip: Some(IpHeader::Version4(ip_header, _)),
         transport: Some(TransportHeader::Udp(udp_header)),
         payload,
         ..

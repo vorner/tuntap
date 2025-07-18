@@ -37,6 +37,9 @@ sh tests/clean.sh
 
 Sudo permission is required.
 
+## MSRV
+The current MSRV(minimum supported rust version) is 1.60.
+
 ## License
 
 Licensed under either of
