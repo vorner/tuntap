@@ -1,5 +1,3 @@
-extern crate cc;
-
 use cc::Build;
 
 fn main() {

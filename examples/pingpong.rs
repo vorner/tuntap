@@ -5,10 +5,6 @@
 //!
 //! The `dump_iface` example is simpler (contains only the reading end), so you want to start with
 //! that.
-//!
-//! You really do want better error handling than all these unwraps.
-
-extern crate tun_tap;
 
 use std::process::Command;
 use std::sync::Arc;
@@ -19,10 +15,12 @@ use tun_tap::{Iface, Mode};
 
 /// The packet data. Note that it is prefixed by 4 bytes ‒ two bytes are flags, another two are
 /// protocol. 8, 0 is IPv4, 134, 221 is IPv6. <https://en.wikipedia.org/wiki/EtherType#Examples>.
-const PING: &[u8] = &[0, 0, 8, 0, 69, 0, 0, 84, 44, 166, 64, 0, 64, 1, 247, 40, 10, 107, 1, 2, 10,
-    107, 1, 3, 8, 0, 62, 248, 19, 160, 0, 2, 232, 228, 34, 90, 0, 0, 0, 0, 216, 83, 3, 0, 0, 0, 0,
-    0, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
-    39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55];
+const PING: &[u8] = &[
+    0, 0, 8, 0, 69, 0, 0, 84, 44, 166, 64, 0, 64, 1, 247, 40, 10, 107, 1, 2, 10, 107, 1, 3, 8, 0,
+    62, 248, 19, 160, 0, 2, 232, 228, 34, 90, 0, 0, 0, 0, 216, 83, 3, 0, 0, 0, 0, 0, 16, 17, 18,
+    19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
+    43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55,
+];
 
 /// Run a shell command. Panic if it fails in any way.
 fn cmd(cmd: &str, args: &[&str]) {
@@ -55,6 +53,8 @@ fn main() {
             assert!(amount == PING.len());
         }
     });
+
+    #[allow(unused_variables)]
     let reader = thread::spawn(move || {
         // MTU + TUN header
         let mut buffer = vec![0; 1504];
@@ -65,8 +65,6 @@ fn main() {
             println!("Packet: {:?}", &buffer[4..size]);
         }
     });
-    writer.join()
-        .unwrap();
-    reader.join()
-        .unwrap();
+    writer.join().unwrap();
+    reader.join().unwrap();
 }

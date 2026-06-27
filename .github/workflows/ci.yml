@@ -1,0 +1,20 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Setup test interface
+        run: sudo sh tests/setup.sh
+      - name: Build
+        run: cargo build --all-targets
+      - name: Test
+        run: sudo env "PATH=$PATH" "HOME=$HOME" cargo test
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
+      - name: Doc
+        run: cargo doc --no-deps

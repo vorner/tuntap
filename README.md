@@ -1,6 +1,6 @@
 # TunTap
 
-[![Travis Build Status](https://api.travis-ci.org/vorner/tuntap.png?branch=master)](https://travis-ci.org/vorner/tuntap)
+[![CI](https://github.com/vorner/tuntap/actions/workflows/ci.yml/badge.svg)](https://github.com/vorner/tuntap/actions/workflows/ci.yml)
 
 TUN/TAP wrapper for Rust.
 

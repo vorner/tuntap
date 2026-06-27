@@ -4,7 +4,6 @@
 //! raw data of the packets that arrive.
 //!
 //! You really do want better error handling than all these unwraps.
-extern crate tun_tap;
 
 use std::process::Command;
 
@@ -28,8 +27,10 @@ fn main() {
     // Configure the „local“ (kernel) endpoint.
     cmd("ip", &["addr", "add", "dev", iface.name(), "10.107.1.2/24"]);
     cmd("ip", &["link", "set", "up", "dev", iface.name()]);
-    println!("Created interface {}. Send some packets into it and see they're printed here",
-             iface.name());
+    println!(
+        "Created interface {}. Send some packets into it and see they're printed here",
+        iface.name()
+    );
     println!("You can for example ping 10.107.1.3 (it won't answer)");
     // That 1500 is a guess for the IFace's MTU (we probably could configure it explicitly). 4 more
     // for TUN's „header“.
